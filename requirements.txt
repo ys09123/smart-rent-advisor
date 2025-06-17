@@ -1,0 +1,18 @@
+# smart-rent-advisor/requirements.txt
+
+# For data manipulation and analysis
+pandas
+numpy
+
+# For model building
+scikit-learn
+
+# For data visualization
+matplotlib
+seaborn
+
+# For creating the dashboard
+streamlit
+
+# For notebook environment
+jupyter
