@@ -22,10 +22,10 @@ def load_artifacts():
 
     # Construct paths relative to the app.py file
     # ../models/random_forest_model.pkl
-    model_path = os.path.join('..', 'models', 'random_forest_model.pkl')
-    scaler_path = os.path.join('..', 'models', 'scaler.pkl')
-    columns_path = os.path.join('..', 'models', 'training_columns.pkl')
-    data_path = os.path.join('..', 'data', 'raw', 'cleaned_data.csv')
+    model_path = os.path.join('models', 'random_forest_model.pkl')
+    scaler_path = os.path.join('models', 'scaler.pkl')
+    columns_path = os.path.join('models', 'training_columns.pkl')
+    data_path = os.path.join('data', 'raw', 'cleaned_data.csv')
 
     try:
         model = joblib.load(model_path)
