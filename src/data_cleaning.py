@@ -18,4 +18,3 @@ def clean_rent_data(df: pd.DataFrame) -> pd.DataFrame:
     df.reset_index(drop=True, inplace=True)
     
     return df
-
