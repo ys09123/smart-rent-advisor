@@ -1,120 +1,171 @@
-# 🏠 Smart Rent Advisor - Developer Guide
+import streamlit as st 
+import pandas as pd 
+import joblib 
+import os 
 
-Welcome to the **Smart Rent Advisor** developer workspace! This document helps you set up, run, and maintain the project like a pro. It's modular, reliable, and restart-safe. 💪
+# --- Page Configuration ---
+st.set_page_config(
+    page_title="Smart Rent Advisor",
+    page_icon="🏡 ",
+    layout="wide"
+)
 
----
+# --- Caching for Performance ---
+# Cache the loading of models and data to speed up the app
+@st.cache_resource
 
-## 🗂️ Project Structure
-```
-smart-rent-advisor/
-├── app.py # 🔹 Streamlit dashboard
-├── data/
-│ ├── raw/ # 📂 Cleaned & raw datasets
-│ └── processed/ # 📂 (Optional) Transformed sets
-├── models/ # 📁 Trained models and scalers
-│ ├── random_forest_model.pkl
-│ └── scaler.pkl
-├── notebooks/ # 📒 Jupyter Notebooks (EDA, modeling)
-├── plots/ # 📊 Visualizations
-├── src/
-│ ├── data_cleaning.py # 🔧 Cleaning logic
-│ ├── utils.py # 🧠 Preprocessing functions
-│ └── train_model.py # 🏋️ Model training script
-└── README.md # 🧾 Project overview
-```
+def load_artifacts():
+    """
+    Loads the trained model, scaler, and the original dataset.
+    Returns a tuple of (model, scaler, data).
+    """
+
+    # Construct paths relative to the app.py file
+    # ../models/random_forest_model.pkl
+    model_path = os.path.join('..', 'models', 'random_forest_model.pkl')
+    scaler_path = os.path.join('..', 'models', 'scaler.pkl')
+    data_path = os.path.join('..', 'data', 'raw', 'cleaned_data.csv')
+
+    try:
+        model = joblib.load(model_path)
+        scaler = joblib.load(scaler_path)
+        df = pd.read_csv(data_path)
+
+    except FileNotFoundError as e:
+        st.error(f"Error loading necessary files: {e}. Please run the training script first.")
+        st.stop()
+    
+    return model, scaler, df
 
 
----
+# --- Load Model, Scaler, and Data ---
+model, scaler, df = load_artifacts()
 
-## 🚀 Quick Start
+TRAINING_COLUMNS = ['BHK', 'City_Chennai', 'Size', 'City_Delhi', 'City_Hyderabad', 'City_Kolkata', 'City_Mumbai', 'Furnishing Status_Semi-Furnished', 'Furnishing Status_Unfurnished']
 
-### ✅ 1. Create & Activate Virtual Environment
+# --- UI Layout (Sidebar) ---
 
-```bash
-# Create venv
-python -m venv venv
+with st.sidebar:
+    st.title("Your Renting Guide, 0% Brokerage!")
+    st.header("Your Inputs")
 
-# Activate
-.\venv\Scripts\activate      # Windows
-# or
-source venv/bin/activate     # macOS/Linux
-```
+    # 1. Salary Input
+    salary = st.number_input(
+        "Enter Your Monthly Salary (in Rs.)",
+        min_value = 5000,
+        max_value = 1000000,
+        value = 50000,
+        step = 1000
+    )
 
-### ✅ 2. Install Dependencies
+    # 2. City Input
+    city_options = sorted(df['City'].unique())
+    selected_city = st.selectbox("Select Your Preferred City", options=city_options)
 
-```bash
-pip install -r requirements.txt
-```
+    # 3. BHK Input
+    bhk_options = sorted(df['BHK'].unique())
+    selected_bhk = st.selectbox("Select Number of Rooms (BHK)", options=bhk_options)
 
-If you don't have one, generate with:
+    # 4. Furnishing Status Input
+    furnish_options = sorted(df['Furnishing Status'].unique())
+    selected_furnishing = st.selectbox("Select Furnishing Status", options=furnish_options)
 
-```bash
-pip freeze > requirements.txt
-```
 
-### ✅ 3. Clean Dataset (Optional if already done)
+# --- Main Page Layout ---
+st.title("Personalized Rent Advisor 🏠")
+st.markdown("Find the perfect home that fits your budget and lifestyle.")
+st.divider()
 
-Use data_cleaning.py from src/ or notebook logic. Save cleaned data to:
+# --- 1. Affordability Analysis (30% of income rule) ---
+st.header("Step 1: Your Affordability")
+affordable_rent_30 = salary * 0.30
+affordable_rent_40 = salary * 0.40
 
-```bash
-data/raw/cleaned_data.csv
-```
+st.metric(
+    "Recommended Rent Range",
+    f"{affordable_rent_30:,.0f} - {affordable_rent_40:,.0f}",
+    help="Based on the 30-40% rule: you should spend no than 30-40% of your gross monthly income on rent."
+)
 
-### ✅ 4. Train the Model
+# --- 2. Personalized Rent Prediction ---
+st.header("Step 2: Estimated Rent for Your Choice")
 
-```bash
-python src/train_model.py
-```
-Outputs:
+# Create a DataFrame from user inputs for prediction
+def create_input_df(bhk, city, furnishing):
+    #  Create a dictionary with user inputs
+    user_input = {
+        'BHK': bhk,
+        'Size': df[(df['City'] == city) & (df['BHK'] == bhk)]['Size'].mean(),
+        'City': city,
+        'Furnishing Status': furnishing
+    }
 
-Model: models/random_forest_model.pkl
+    input_df = pd.DataFrame([user_input])
 
-Scaler: models/scaler.pkl
+    # One-Hot encode categorical variables
+    input_encoded = pd.get_dummies(
+        input_df,
+        columns = ['City', 'Furnishing Status']
+    )
 
-### ✅ 5. Launch the Streamlit App
+    # Reindex to match the training columns, filling missing with 0
+    input_reindexed = input_encoded.reindex(
+        columns = TRAINING_COLUMNS,
+        fill_value=0
+    )
 
-```bash
-streamlit run app.py
-```
+    return input_reindexed
 
-🧠 Common Recovery Steps (After Restart)<br>
-If your kernel/runtime disconnects:
+# Get the processed input
+input_features = create_input_df(
+    selected_bhk,
+    selected_city,
+    selected_furnishing
+)
 
-# Reload cleaned data
-```bash
-import pandas as pd
-df = pd.read_csv("data/raw/cleaned_data.csv")
-```
+# Scale numerical features using the loaded scaler
+input_features[['BHK', 'Size']] = scaler.transform(input_features[['BHK', 'Size']])
 
-# Reload model and scaler
-```bash
-import joblib
-model = joblib.load("models/random_forest_model.pkl")
-scaler = joblib.load("models/scaler.pkl")
-```
+# Predict the rent
+predicted_rent = model.predict(input_features)[0]
 
-# Ready to predict!
-```bash
-pred = model.predict(...)
-```
+col1, col2 = st.columns(2)
+with col1:
+    st.metric(
+        f"Predicted Rent for a {selected_bhk} BHK in {selected_city}",
+        f"{predicted_rent:,.0f}"
+    )
 
-🛠️ Developer Tips<br>
+with col2:
+    if predicted_rent <= affordable_rent_40:
+        st.success("This configuration seems affordable for you!")
+    else:
+        st.warning("This might be a stretch for your budget. Consider other options")
 
-🔁 Don't re-train model unless you change data.
 
-📦 Use joblib to load/save large objects efficiently.
+# ---3. Neighbourhood Recommendations ---
+st.header("Step 3: Affordable Neighbourhoods")
 
-✅ Always test new features via notebooks before migrating to src/
+# Filter the DataFrame based on the user's city and budget
+recommendations_df = df[
+    (df['City'] == selected_city) &
+    (df['Rent'] >= affordable_rent_30) &
+    (df['Rent'] <= affordable_rent_40) &
+    (df['BHK'] == selected_bhk)
+].sort_values('Rent', ascending=True).drop_duplicates(subset=['Area Locality'])
 
----
+# Display Recommendations
+if not recommendations_df.empty:
+    st.subheader(f"Top Areas in {selected_city} Within Your Budget")
+    # Display key columns in a clean table
+    st.dataframe(
+        recommendations_df[['Area Locality', 'Rent', 'Size', 'Furnishing Status']].head(10),
+        use_container_width=True,
+        hide_index=True
+    )
+else:
+    st.info(f"No areas found in {selected_city} for a {selected_bhk} BHK within your budget. Try adjusting your filters.")
 
-📬 Contribute<br>
-Want to help improve the Smart Rent Advisor?<br>
-Feel free to create issues or send pull requests!
 
----
-
-👨‍💻 Author
-Yash Kr. Shaw
-
----
+st.divider()
+st.caption("Built with ❤️ by Yash")
