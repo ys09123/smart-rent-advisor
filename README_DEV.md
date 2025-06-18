@@ -5,7 +5,7 @@ Welcome to the **Smart Rent Advisor** developer workspace! This document helps y
 ---
 
 ## 🗂️ Project Structure
-
+```
 smart-rent-advisor/
 ├── app.py # 🔹 Streamlit dashboard
 ├── data/
@@ -21,6 +21,7 @@ smart-rent-advisor/
 │ ├── utils.py # 🧠 Preprocessing functions
 │ └── train_model.py # 🏋️ Model training script
 └── README.md # 🧾 Project overview
+```
 
 
 ---
@@ -76,31 +77,42 @@ Scaler: models/scaler.pkl
 streamlit run app.py
 ```
 
-🧠 Common Recovery Steps (After Restart)
+🧠 Common Recovery Steps (After Restart)<br>
 If your kernel/runtime disconnects:
 
 # Reload cleaned data
+```bash
 import pandas as pd
 df = pd.read_csv("data/raw/cleaned_data.csv")
+```
 
 # Reload model and scaler
+```bash
 import joblib
 model = joblib.load("models/random_forest_model.pkl")
 scaler = joblib.load("models/scaler.pkl")
+```
 
 # Ready to predict!
+```bash
 pred = model.predict(...)
+```
 
-🛠️ Developer Tips
+🛠️ Developer Tips<br>
+
 🔁 Don't re-train model unless you change data.
 
 📦 Use joblib to load/save large objects efficiently.
 
 ✅ Always test new features via notebooks before migrating to src/
 
-📬 Contribute
-Want to help improve the Smart Rent Advisor?
+---
+
+📬 Contribute<br>
+Want to help improve the Smart Rent Advisor?<br>
 Feel free to create issues or send pull requests!
+
+---
 
 👨‍💻 Author
 Yash Kr. Shaw
