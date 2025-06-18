@@ -32,21 +32,21 @@ Real estate platforms provide rent insights.<br>
 ## 🗂️ Project Structure
 ```
 smart-rent-advisor/
-├── app.py  # 🔹 Streamlit dashboard
+├── app.py              # 🔹 Streamlit dashboard
 ├── data/
-│ ├── raw/  # 📂 Cleaned & raw datasets
-│ └── processed/    # 📂 (Optional) Transformed sets
-├── models/ # 📁 Trained models and scalers
+│ ├── raw/              # 📂 Cleaned & raw datasets
+│ └── processed/              # 📂 (Optional) Transformed sets
+├── models/              # 📁 Trained models and scalers
 │ ├── random_forest_model.pkl
 │ └── scaler.pkl
-├── notebooks/  # 📒 Jupyter Notebooks (EDA, modeling)
-├── plots/  # 📊 Visualizations
+├── notebooks/              # 📒 Jupyter Notebooks (EDA, modeling)
+├── plots/              # 📊 Visualizations
 ├── src/
-│ ├── data_cleaning.py  # 🔧 Cleaning logic
-│ ├── utils.py  # 🧠 Preprocessing functions
-│ └── train_model.py    # 🏋️ Model training script
-└── README.md   # 🧾 Project overview
-└── README_DEV.md   # 🧾 For Developers
+│ ├── data_cleaning.py              # 🔧 Cleaning logic
+│ ├── utils.py              # 🧠 Preprocessing functions
+│ └── train_model.py              # 🏋️ Model training script
+└── README.md              # 🧾 Project overview
+└── README_DEV.md              # 🧾 For Developers
 ```
 
 ---
