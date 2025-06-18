@@ -24,24 +24,24 @@ def load_artifacts():
     # ../models/random_forest_model.pkl
     model_path = os.path.join('..', 'models', 'random_forest_model.pkl')
     scaler_path = os.path.join('..', 'models', 'scaler.pkl')
+    columns_path = os.path.join('..', 'models', 'training_columns.pkl')
     data_path = os.path.join('..', 'data', 'raw', 'cleaned_data.csv')
 
     try:
         model = joblib.load(model_path)
         scaler = joblib.load(scaler_path)
+        training_columns = joblib.load(columns_path)
         df = pd.read_csv(data_path)
 
     except FileNotFoundError as e:
         st.error(f"Error loading necessary files: {e}. Please run the training script first.")
         st.stop()
     
-    return model, scaler, df
+    return model, scaler, training_columns, df
 
 
 # --- Load Model, Scaler, and Data ---
-model, scaler, df = load_artifacts()
-
-TRAINING_COLUMNS = ['BHK', 'City_Chennai', 'Size', 'City_Delhi', 'City_Hyderabad', 'City_Kolkata', 'City_Mumbai', 'Furnishing Status_Semi-Furnished', 'Furnishing Status_Unfurnished']
+model, scaler, TRAINING_COLUMNS, df = load_artifacts()
 
 # --- UI Layout (Sidebar) ---
 
