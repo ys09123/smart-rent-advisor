@@ -53,16 +53,19 @@ smart-rent-advisor/
 
 # 📈 Visualizations
 
+### Rent Distribution
 ![Rent Distribution](plots/rent_dist.png)
 
-![Rent vs. BHK](plots/ren_vs_bhk.png)
+### Rent vs. BHKs (Bedroom, Hall, Kitchen)
+![Rent vs. BHK](plots/rent_vs_bhk.png)
 
+### Average Rent by City
 ![Average Rent by City](plots/average_rent_by_city.png)
 
-
+### Feature Importance
 ![Feature Importance](plots/feature_importance.png)
 
-
+### Actual vs. Predicted Rent
 ![Actual vs. Predicted Rent (in Rs.)](plots/actual_vs_predicted_density.png)
 
 ---
